@@ -11,9 +11,8 @@ import urllib
 import socket
 from bs4 import BeautifulSoup
 import re
-from urlparse import urljoin
+from urlparse import urljoin, urlparse
 from collections import deque
-from urlparse import urlparse
 import argparse
 
 socket.setdefaulttimeout(10)
