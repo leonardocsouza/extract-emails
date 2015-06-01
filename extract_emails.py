@@ -14,13 +14,14 @@ import re
 from urlparse import urljoin
 from collections import deque
 from urlparse import urlparse
+import argparse
 
 socket.setdefaulttimeout(10)
 
 # Download page and return its contents
 def get_page(url):
 	try:
-		print "Requesting url [%s]" % url
+		#print "Requesting url [%s]" % url
 		f = urllib.urlopen(url)
 		page = f.read()
 		f.close()
@@ -95,43 +96,42 @@ def print_set(set_values):
 		print item
 
 if __name__ == "__main__":
-		import optparse
-		__version__ = "0.1"
-		USAGE   = "%prog [options] <url>"
-		VERSION = "%prog v" + __version__
-		def parse_options():
-				"""parse_options() -> opts, args
-
-				Parse any command-line options given returning both
-				the parsed options and arguments.
-				"""
-				parser = optparse.OptionParser(usage=USAGE,version=VERSION)
-				parser.add_option("-p", "--maxpages",action="store", type="int",
-									  default=10, dest="maxpages",
-									  help="Maximum number of pages to crawl")
-				
-				(opts, args) = parser.parse_args()
-				if len(args) < 1:
-					parser.print_help()
-					raise SystemExit, 1
-				return opts, args
+	def parse_options():
+		parser = argparse.ArgumentParser()
+		parser.add_argument("domain",
+		                    help="domain to be crawled")
+		parser.add_argument("-m", "--maxpages", action="store", type=int,
+		                    default=10, help="maximum number of pages to crawl")
+		parser.add_argument("-v", "--verbose", action="store_true",
+		                    help="increase output verbosity", default=False)
+		args = parser.parse_args()
 		
-		def main():
-				opts, args = parse_options()
-				domain = args[0]
-				seed_url = "http://{}/".format(domain)
+		return args
+		# parser = optparse.OptionParser(usage=USAGE,version=VERSION)
+		# parser.add_option("-p", "--maxpages",action="store", type="int",
+		# 					  default=10, dest="maxpages",
+		# 					  help="Maximum number of pages to crawl")
+		
+		# (opts, args) = parser.parse_args()
+		# if len(args) < 1:
+		# 	parser.print_help()
+		# 	raise SystemExit, 1
+		# return opts, args
+		
+	def main():
+		args = parse_options()
+		domain = args.domain
+		seed_url = "http://{}/".format(domain)
+		maxpages = args.maxpages
+		
+		crawled, emails_found = crawl_site(seed_url, domain, maxpages)
+		
+		if args.verbose:
+			print "URLs crawled:"
+			print_set(crawled)
+			print ""
 
-				#if url[-1] == '/':
-				#    url = url[:len(url) - 1]
-				maxpages = opts.maxpages
-				
-				crawled, emails_found = crawl_site(seed_url, domain, maxpages)
-				
-				print "URLs crawled:"
-				print_set(crawled)
-				print ""
+		print "Found these email addresses:"
+		print_set(emails_found)
 
-				print "Found these email addresses:"
-				print_set(emails_found)
-
-		main()
+	main()
