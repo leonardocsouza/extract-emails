@@ -17,8 +17,10 @@ import argparse
 
 socket.setdefaulttimeout(10)
 
-# Download page and return its contents
 def get_page(url):
+	"""
+	Download page and return its contents 
+	"""
 	try:
 		#print "Requesting url [%s]" % url
 		f = urllib.urlopen(url)
@@ -29,12 +31,16 @@ def get_page(url):
 		return ""
 	return ""
 
-# Return parsed page using BeautifulSoup
 def parse_page(page):
+	"""
+	Return parsed page using BeautifulSoup
+	"""
 	return BeautifulSoup(page)
 
-# Extract and return all links found in a page
 def get_all_valid_links(parsed_page, base_url, domain):	
+	"""
+	Extract and return all links found in a page
+	"""
 	links = set()
 
 	# Find all links
@@ -56,13 +62,18 @@ def get_all_valid_links(parsed_page, base_url, domain):
 
 	return links
 
-# Extract and return all emails found in a block of text
 def get_all_emails(page_contents):
+	"""
+	Extract and return all emails found in a block of text
+	"""
 	emails = re.findall(r"[a-z0-9\.\-+_]+@[a-z0-9\.\-+_]+\.[a-z]+", page_contents, re.I)
 
 	return emails
 
 def crawl_site(seed, domain, max_pages=10):
+	"""
+	Crawl and process pages starting with the seed url
+	"""
 	to_crawl = deque([seed])
 	crawled = set()
 	emails_found = set()
@@ -91,11 +102,17 @@ def crawl_site(seed, domain, max_pages=10):
 	return (crawled, emails_found)
 
 def print_set(set_values):
+	"""
+	Print each item on a set/list
+	"""
 	for item in set_values:
 		print item
 
 if __name__ == "__main__":
 	def parse_options():
+		"""
+		Parse command line options
+		"""
 		parser = argparse.ArgumentParser()
 		parser.add_argument("domain",
 		                    help="domain to be crawled")
@@ -106,16 +123,6 @@ if __name__ == "__main__":
 		args = parser.parse_args()
 		
 		return args
-		# parser = optparse.OptionParser(usage=USAGE,version=VERSION)
-		# parser.add_option("-p", "--maxpages",action="store", type="int",
-		# 					  default=10, dest="maxpages",
-		# 					  help="Maximum number of pages to crawl")
-		
-		# (opts, args) = parser.parse_args()
-		# if len(args) < 1:
-		# 	parser.print_help()
-		# 	raise SystemExit, 1
-		# return opts, args
 		
 	def main():
 		args = parse_options()
