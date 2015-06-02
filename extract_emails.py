@@ -33,12 +33,6 @@ def get_page(url):
 		error_message = "{} - {}".format(url, e)
 	return "", error_message
 
-def parse_page(page):
-	"""
-	Return parsed page using BeautifulSoup
-	"""
-	return BeautifulSoup(page)
-
 def get_all_valid_links(parsed_page, base_url, domain):	
 	"""
 	Extract and return all links found in a page
@@ -89,7 +83,7 @@ def crawl_site(seed, domain, max_pages=10):
 
 		if content:
 			# Parse page
-			parsed_page = parse_page(content)
+			parsed_page = BeautifulSoup(content)
 
 			# Extract all emails from page contents and add to list of emails found
 			emails_found.update(get_all_emails(parsed_page.get_text()))
