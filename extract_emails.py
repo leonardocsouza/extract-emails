@@ -19,17 +19,19 @@ socket.setdefaulttimeout(10)
 
 def get_page(url):
 	"""
-	Download page and return its contents 
+	Download page and return its contents
 	"""
+	error_message = ""
+
 	try:
 		#print "Requesting url [%s]" % url
 		f = urllib.urlopen(url)
 		page = f.read()
 		f.close()
-		return page
-	except:
-		return ""
-	return ""
+		return page, None
+	except Exception,e:
+		error_message = "{} - {}".format(url, e)
+	return "", error_message
 
 def parse_page(page):
 	"""
@@ -77,12 +79,13 @@ def crawl_site(seed, domain, max_pages=10):
 	to_crawl = deque([seed])
 	crawled = set()
 	emails_found = set()
+	errors = []
 
 	while len(to_crawl) and (len(crawled) < max_pages):
 		url = to_crawl.popleft()
 		crawled.add(url)
 		
-		content = get_page(url)
+		content, error_message = get_page(url)
 
 		if content:
 			# Parse page
@@ -98,14 +101,17 @@ def crawl_site(seed, domain, max_pages=10):
 				# Only add links that have not been seen yet
 				if (not link in crawled) and (not link in to_crawl):
 					to_crawl.append(link)
+		else:
+			if error_message:
+				errors.append(error_message)
 	
-	return (crawled, emails_found)
+	return (crawled, emails_found, errors)
 
-def print_set(set_values):
+def print_iterator(iterator):
 	"""
 	Print each item on a set/list
 	"""
-	for item in set_values:
+	for item in iterator:
 		print item
 
 if __name__ == "__main__":
@@ -130,14 +136,19 @@ if __name__ == "__main__":
 		seed_url = "http://{}/".format(domain)
 		maxpages = args.maxpages
 		
-		crawled, emails_found = crawl_site(seed_url, domain, maxpages)
+		crawled, emails_found, errors = crawl_site(seed_url, domain, maxpages)
 		
 		if args.verbose:
+			if len(errors) > 0:
+				print "Errors:"
+				print_iterator(errors)
+				print ""
+
 			print "URLs crawled:"
-			print_set(crawled)
+			print_iterator(crawled)
 			print ""
 
 		print "Found these email addresses:"
-		print_set(emails_found)
+		print_iterator(emails_found)
 
 	main()
