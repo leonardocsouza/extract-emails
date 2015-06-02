@@ -107,12 +107,17 @@ def crawl_site(seed, domain, max_pages=10):
 	
 	return (crawled, emails_found, errors)
 
-def print_iterator(iterator):
+def print_iterator(iterator, header):
 	"""
-	Print each item on a set/list
+	Print each item on a set/list,
+	including header and empty line after it
 	"""
+	print header
+
 	for item in iterator:
 		print item
+	
+	print ""
 
 if __name__ == "__main__":
 	def parse_options():
@@ -140,15 +145,10 @@ if __name__ == "__main__":
 		
 		if args.verbose:
 			if len(errors) > 0:
-				print "Errors:"
-				print_iterator(errors)
-				print ""
+				print_iterator(errors, "Errors:")
 
-			print "URLs crawled:"
-			print_iterator(crawled)
-			print ""
+			print_iterator(crawled, "URLs crawled:")
 
-		print "Found these email addresses:"
-		print_iterator(emails_found)
+		print_iterator(emails_found, "Found these email addresses:")
 
 	main()
